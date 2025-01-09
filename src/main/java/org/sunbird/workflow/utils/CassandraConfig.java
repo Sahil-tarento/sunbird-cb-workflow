@@ -18,11 +18,6 @@ public abstract class CassandraConfig extends AbstractCassandraConfiguration {
     }
 
     @Override
-    protected boolean getMetricsEnabled() {
-        return false;
-    }
-
-    @Override
     public int getPort() {
         return port;
     }

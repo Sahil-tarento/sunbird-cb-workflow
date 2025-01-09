@@ -1,11 +1,11 @@
 package org.sunbird.workflow.utils;
 
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Row;
+import com.datastax.oss.driver.api.core.cql.*;
 import org.sunbird.workflow.config.Constants;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * @author fathima
@@ -83,13 +83,12 @@ public final class CassandraUtil {
     }
 
     public static Map<String, String> fetchColumnsMapping(ResultSet results) {
-        return results
-                .getColumnDefinitions()
-                .asList()
-                .stream()
+        ColumnDefinitions columnDefinitions = results.getColumnDefinitions();
+
+        return StreamSupport.stream(columnDefinitions.spliterator(), false)
                 .collect(
                         Collectors.toMap(
-                                d -> propertiesCache.readProperty(d.getName()).trim(),
-                                d -> d.getName()));
+                                column -> propertiesCache.readProperty(column.getName().asInternal()).trim(),
+                                column -> column.getName().asInternal()));
     }
 }

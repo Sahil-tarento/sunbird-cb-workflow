@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.1.4.RELEASE</version>
+        <version>3.2.0</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>org.sunbird</groupId>
@@ -15,8 +15,8 @@
     <description>Sunbird Workflow Handler Implementation</description>
 
     <properties>
-        <java.version>1.8</java.version>
-	    <log4j2.version>2.16.0</log4j2.version>
+        <java.version>17</java.version>
+	    <log4j2.version>2.19.0</log4j2.version>
     </properties>
 
     <dependencies>
@@ -66,8 +66,8 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.data</groupId>

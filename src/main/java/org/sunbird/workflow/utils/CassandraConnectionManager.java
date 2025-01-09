@@ -1,6 +1,6 @@
 package org.sunbird.workflow.utils;
 
-import com.datastax.driver.core.Session;
+import com.datastax.oss.driver.api.core.CqlSession;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ public interface CassandraConnectionManager {
 	   * @param keyspaceName
 	   * @return Session
 	   */
-	  Session getSession(String keyspaceName);
+	  CqlSession getSession(String keyspaceName);
 
 	List<String> getTableList(String keyspacename);
 }
