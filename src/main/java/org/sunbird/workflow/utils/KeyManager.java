@@ -7,7 +7,7 @@ import org.sunbird.workflow.config.Constants;
 import org.sunbird.workflow.models.KeyData;
 
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;

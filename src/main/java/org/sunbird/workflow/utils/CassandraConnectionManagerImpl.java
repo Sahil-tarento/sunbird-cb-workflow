@@ -1,6 +1,7 @@
 package org.sunbird.workflow.utils;
 
 import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.driver.api.core.ProtocolVersion;
 import com.datastax.oss.driver.api.core.config.DefaultDriverOption;
 import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
 import com.datastax.oss.driver.api.core.metadata.Metadata;
@@ -64,7 +65,10 @@ public class CassandraConnectionManagerImpl implements CassandraConnectionManage
 			List<InetSocketAddress> contactPoints = hosts.stream()
 					.map(host -> new InetSocketAddress(host.trim(), 9042)) // Assuming default port 9042
 					.collect(Collectors.toList());
+
 			DriverConfigLoader loader = DriverConfigLoader.programmaticBuilder()
+					.withStringList(DefaultDriverOption.CONTACT_POINTS, hosts)
+					.withString(DefaultDriverOption.LOAD_BALANCING_LOCAL_DATACENTER, "datacenter1")
 					// Local host connection pooling
 					.withInt(DefaultDriverOption.CONNECTION_POOL_LOCAL_SIZE,
 							Integer.parseInt(cache.getProperty(Constants.CORE_CONNECTIONS_PER_HOST_FOR_LOCAL)))
@@ -74,15 +78,16 @@ public class CassandraConnectionManagerImpl implements CassandraConnectionManage
 					// Heartbeat and timeout settings
 					.withInt(DefaultDriverOption.HEARTBEAT_INTERVAL,
 							Integer.parseInt(cache.getProperty(Constants.HEARTBEAT_INTERVAL)))
-					.withInt(DefaultDriverOption.CONNECTION_INIT_QUERY_TIMEOUT,
-							Integer.parseInt(cache.getProperty(Constants.POOL_TIMEOUT)))
-					.withString(DefaultDriverOption.PROTOCOL_VERSION, "V3")  // Protocol version for Cassandra
+					.withInt(DefaultDriverOption.CONNECTION_INIT_QUERY_TIMEOUT, 10000)
+					.withInt(DefaultDriverOption.REQUEST_TIMEOUT, 10000)
+					.withString(DefaultDriverOption.PROTOCOL_VERSION, ProtocolVersion.V4.toString())  // Protocol version for Cassandra
 					.withClass(DefaultDriverOption.RETRY_POLICY_CLASS, DefaultRetryPolicy.class)  // Retry policy
 					.build();
 
 			// Create the CqlSession with the configuration loader
 			session = CqlSession.builder()
-					.addContactPoint(new InetSocketAddress("localhost", 9042))
+					.addContactPoints(contactPoints)
+					.withLocalDatacenter("datacenter1")
 					.withConfigLoader(loader)
 					.build();
 

@@ -2,9 +2,10 @@ package org.sunbird.workflow;
 
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.core5.util.Timeout;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -31,12 +32,16 @@ public class WorkflowApplication {
 
 	private ClientHttpRequestFactory getClientHttpRequestFactory() {
 		int timeout = 45000;
-		RequestConfig config = RequestConfig.custom().setConnectTimeout(timeout).setConnectionRequestTimeout(timeout)
-				.setSocketTimeout(timeout).build();
-		CloseableHttpClient client = HttpClientBuilder.create().setMaxConnTotal(2000).setMaxConnPerRoute(500)
+		RequestConfig config = RequestConfig.custom().
+				setConnectTimeout(Timeout.ofMilliseconds(timeout)).
+				setConnectionRequestTimeout(Timeout.ofMilliseconds(timeout)).
+				setResponseTimeout(Timeout.ofMilliseconds(timeout)).
+				build();
+
+		CloseableHttpClient client = HttpClientBuilder.create()
 				.setDefaultRequestConfig(config).build();
 		HttpComponentsClientHttpRequestFactory cRequestFactory = new HttpComponentsClientHttpRequestFactory(client);
-		cRequestFactory.setReadTimeout(timeout);
+		cRequestFactory.setConnectTimeout(timeout);
 		return cRequestFactory;
 	}
 

@@ -1,6 +1,6 @@
 package org.sunbird.workflow.postgres.entity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "wf_domain_user_info", schema = "wingspan")

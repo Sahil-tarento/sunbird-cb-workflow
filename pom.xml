@@ -103,9 +103,9 @@
 			<artifactId>spring-boot-starter-log4j2</artifactId>
 		</dependency>
         <dependency>
-            <groupId>net.karmayogibharat</groupId>
-            <artifactId>cloud-store-sdk_2.11</artifactId>
-            <version>1.4.6</version>
+            <groupId>org.sunbird</groupId>
+            <artifactId>cloud-store-sdk_2.12</artifactId>
+            <version>1.4.8</version>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>

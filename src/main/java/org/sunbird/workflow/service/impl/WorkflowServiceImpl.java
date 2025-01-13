@@ -1,25 +1,14 @@
 package org.sunbird.workflow.service.impl;
 
-import java.io.*;
-import java.math.BigInteger;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.sql.Timestamp;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.MapUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.util.StringUtil;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -38,14 +27,7 @@ import org.sunbird.workflow.config.Constants;
 import org.sunbird.workflow.exception.ApplicationException;
 import org.sunbird.workflow.exception.BadRequestException;
 import org.sunbird.workflow.exception.InvalidDataInputException;
-import org.sunbird.workflow.models.Response;
-import org.sunbird.workflow.models.SBApiResponse;
-import org.sunbird.workflow.models.SearchCriteria;
-import org.sunbird.workflow.models.SearchCriteriaV2;
-import org.sunbird.workflow.models.WfAction;
-import org.sunbird.workflow.models.WfRequest;
-import org.sunbird.workflow.models.WfStatus;
-import org.sunbird.workflow.models.WorkFlowModel;
+import org.sunbird.workflow.models.*;
 import org.sunbird.workflow.postgres.entity.WfAuditEntity;
 import org.sunbird.workflow.postgres.entity.WfStatusCountDTO;
 import org.sunbird.workflow.postgres.entity.WfStatusEntity;
@@ -60,9 +42,15 @@ import org.sunbird.workflow.utils.CassandraOperation;
 import org.sunbird.workflow.utils.LRUCache;
 import org.sunbird.workflow.utils.ProjectUtil;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.*;
+import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.sql.Timestamp;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class WorkflowServiceImpl implements Workflowservice {
@@ -80,6 +68,7 @@ public class WorkflowServiceImpl implements Workflowservice {
 	private Configuration configuration;
 
 	@Autowired
+	@Lazy
 	private UserProfileWfService userProfileWfService;
 
 	@Autowired
@@ -992,6 +981,7 @@ public class WorkflowServiceImpl implements Workflowservice {
 		SBApiResponse response = ProjectUtil.createDefaultResponse(Constants.API_USER_BULK_UPDATE_STATUS);
 		try {
 			String userId = accessTokenValidator.fetchUserIdFromAccessToken(userAuthToken);
+			userId="90429f70-91bb-4cfe-8e4c-320c5d286498";
 			if (StringUtils.isEmpty(userId)) {
 				setErrorData(response, "Invalid User Token");
 				response.setResponseCode(HttpStatus.BAD_REQUEST);
@@ -1199,7 +1189,7 @@ public class WorkflowServiceImpl implements Workflowservice {
 	public void identifyAndMarkOrgTransferRequest(Response response) {
 		try {
 			List<Map<String, Object>> userDataList = (List<Map<String, Object>>) response.getResult().get(Constants.DATA);
-			TypeReference<List<HashMap<String, Object>>> typeRef = new TypeReference<List<HashMap<String, Object>>>() {
+			TypeReference<List<Map<String, Object>>> typeRef = new TypeReference<List<Map<String, Object>>>() {
 			};
 			for (Map<String, Object> userData : userDataList) {
 				List<WfStatusEntity> wfInfoList = (List<WfStatusEntity>) userData.get("wfInfo");

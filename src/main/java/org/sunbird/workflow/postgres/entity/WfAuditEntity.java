@@ -1,6 +1,6 @@
 package org.sunbird.workflow.postgres.entity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Date;
 
 

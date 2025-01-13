@@ -9,6 +9,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.sunbird.workflow.models.WfRequest;
@@ -24,6 +25,7 @@ public class ApplicationProcessingConsumer {
     private ObjectMapper mapper;
 
     @Autowired
+    @Lazy
     private ApplicationProcessingServiceImpl applicationProcessingServiceImpl;
 
     @Autowired
