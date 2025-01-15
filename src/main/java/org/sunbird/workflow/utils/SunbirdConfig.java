@@ -18,16 +18,16 @@ import java.net.InetSocketAddress;
 import java.util.Objects;
 
 @Configuration
-@ConfigurationProperties("spring.data.cassandra")
+@ConfigurationProperties("spring.cassandra")
 @EnableCassandraRepositories(basePackages = { "org.sunbird" }, cassandraTemplateRef = "sunbirdTemplate")
 public class SunbirdConfig extends CassandraConfig {
 
 	private Logger logger = LoggerFactory.getLogger(SunbirdConfig.class);
 
-	@Value("${spring.data.cassandra.username}")
+	@Value("${spring.cassandra.username}")
 	private String sunbirdUser;
 
-	@Value("${spring.data.cassandra.password}")
+	@Value("${spring.cassandra.password}")
 	private String sunbirdPassword;
 
 	@NotNull
