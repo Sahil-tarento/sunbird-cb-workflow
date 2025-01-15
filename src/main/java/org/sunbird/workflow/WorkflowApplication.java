@@ -4,7 +4,8 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.core5.util.Timeout;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -38,11 +39,16 @@ public class WorkflowApplication {
 				setResponseTimeout(Timeout.ofMilliseconds(timeout)).
 				build();
 
-		CloseableHttpClient client = HttpClientBuilder.create()
-				.setDefaultRequestConfig(config).build();
-		HttpComponentsClientHttpRequestFactory cRequestFactory = new HttpComponentsClientHttpRequestFactory(client);
-		cRequestFactory.setConnectTimeout(timeout);
-		return cRequestFactory;
+		PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
+		connectionManager.setMaxTotal(2000);
+		connectionManager.setDefaultMaxPerRoute(500);
+
+		CloseableHttpClient client = HttpClients.custom()
+				.setDefaultRequestConfig(config)
+				.setConnectionManager(connectionManager)
+				.build();
+
+		return new HttpComponentsClientHttpRequestFactory(client);
 	}
 
 }

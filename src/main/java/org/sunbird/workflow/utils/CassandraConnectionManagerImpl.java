@@ -1,14 +1,13 @@
 package org.sunbird.workflow.utils;
 
-import com.datastax.oss.driver.api.core.CqlSession;
-import com.datastax.oss.driver.api.core.ProtocolVersion;
+import com.datastax.oss.driver.api.core.*;
 import com.datastax.oss.driver.api.core.config.DefaultDriverOption;
 import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
 import com.datastax.oss.driver.api.core.metadata.Metadata;
 import com.datastax.oss.driver.api.core.metadata.Node;
 import com.datastax.oss.driver.api.core.metadata.schema.TableMetadata;
-import com.datastax.oss.driver.api.core.CqlIdentifier;
 import com.datastax.oss.driver.internal.core.retry.DefaultRetryPolicy;
+import com.datastax.oss.driver.internal.core.time.AtomicTimestampGenerator;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +67,7 @@ public class CassandraConnectionManagerImpl implements CassandraConnectionManage
 
 			DriverConfigLoader loader = DriverConfigLoader.programmaticBuilder()
 					.withStringList(DefaultDriverOption.CONTACT_POINTS, hosts)
+					.withString(DefaultDriverOption.REQUEST_CONSISTENCY, getConsistencyLevel().name())
 					.withString(DefaultDriverOption.LOAD_BALANCING_LOCAL_DATACENTER, "datacenter1")
 					// Local host connection pooling
 					.withInt(DefaultDriverOption.CONNECTION_POOL_LOCAL_SIZE,
@@ -80,8 +80,9 @@ public class CassandraConnectionManagerImpl implements CassandraConnectionManage
 							Integer.parseInt(cache.getProperty(Constants.HEARTBEAT_INTERVAL)))
 					.withInt(DefaultDriverOption.CONNECTION_INIT_QUERY_TIMEOUT, 10000)
 					.withInt(DefaultDriverOption.REQUEST_TIMEOUT, 10000)
-					.withString(DefaultDriverOption.PROTOCOL_VERSION, ProtocolVersion.V4.toString())  // Protocol version for Cassandra
-					.withClass(DefaultDriverOption.RETRY_POLICY_CLASS, DefaultRetryPolicy.class)  // Retry policy
+					.withString(DefaultDriverOption.PROTOCOL_VERSION, ProtocolVersion.V4.toString())
+					.withClass(DefaultDriverOption.RETRY_POLICY_CLASS, DefaultRetryPolicy.class)
+					.withClass(DefaultDriverOption.TIMESTAMP_GENERATOR_CLASS, AtomicTimestampGenerator.class)
 					.build();
 
 			// Create the CqlSession with the configuration loader
@@ -108,6 +109,22 @@ public class CassandraConnectionManagerImpl implements CassandraConnectionManage
 		}
 	}
 
+	private static ConsistencyLevel getConsistencyLevel() {
+		String consistency = ProjectUtil.getConfigValue(Constants.SUNBIRD_CASSANDRA_CONSISTENCY_LEVEL);
+
+		logger.info("CassandraConnectionManagerImpl:getConsistencyLevel: level = " + consistency);
+
+		if (StringUtils.isBlank(consistency)) return null;
+
+		try {
+			return DefaultConsistencyLevel.valueOf(consistency.toUpperCase());
+		} catch (IllegalArgumentException exception) {
+			logger.info("CassandraConnectionManagerImpl:getConsistencyLevel: Exception occurred with error message = "
+					+ exception.getMessage());
+		}
+		return null;
+	}
+
 	@Override
 	public List<String> getTableList(String keyspaceName) {
 		try {
@@ -117,7 +134,7 @@ public class CassandraConnectionManagerImpl implements CassandraConnectionManage
 				// Convert the Map<CqlIdentifier, TableMetadata> to a List<String> with table names
 				Map<CqlIdentifier, TableMetadata> tables = metadata.getKeyspace(keyspaceName).get().getTables();
 				return tables.keySet().stream()
-						.map(CqlIdentifier::toString) // Convert CqlIdentifier to string (table names)
+						.map(CqlIdentifier::toString)
 						.collect(Collectors.toList());
 			} else {
 				throw new ProjectCommonException(
@@ -134,7 +151,6 @@ public class CassandraConnectionManagerImpl implements CassandraConnectionManage
 		}
 	}
 
-	// Register shutdown hook to clean up resources when JVM shuts down
 	public static void registerShutDownHook() {
 		Runtime runtime = Runtime.getRuntime();
 		runtime.addShutdownHook(new ResourceCleanUp());

@@ -103,7 +103,7 @@
 			<artifactId>spring-boot-starter-log4j2</artifactId>
 		</dependency>
         <dependency>
-            <groupId>org.sunbird</groupId>
+            <groupId>net.karmayogibharat</groupId>
             <artifactId>cloud-store-sdk_2.12</artifactId>
             <version>1.4.8</version>
         </dependency>

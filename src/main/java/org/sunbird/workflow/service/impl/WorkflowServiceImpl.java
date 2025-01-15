@@ -981,7 +981,6 @@ public class WorkflowServiceImpl implements Workflowservice {
 		SBApiResponse response = ProjectUtil.createDefaultResponse(Constants.API_USER_BULK_UPDATE_STATUS);
 		try {
 			String userId = accessTokenValidator.fetchUserIdFromAccessToken(userAuthToken);
-			userId="90429f70-91bb-4cfe-8e4c-320c5d286498";
 			if (StringUtils.isEmpty(userId)) {
 				setErrorData(response, "Invalid User Token");
 				response.setResponseCode(HttpStatus.BAD_REQUEST);
